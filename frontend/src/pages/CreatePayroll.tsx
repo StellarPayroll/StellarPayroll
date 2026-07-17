@@ -26,7 +26,8 @@ export default function CreatePayroll() {
   const org = useAppStore((s) => s.currentOrg);
   const freighterPublicKey = useAppStore((s) => s.freighterPublicKey);
   const orgId = org?.id || '';
-  const { data: employees = [] } = useEmployees(orgId);
+  const { data: employeesResponse } = useEmployees(orgId);
+  const employees = employeesResponse?.data ?? [];
   const createMutation = useCreatePayroll(orgId);
   const executeMutation = useExecutePayroll();
   const executeXDRMutation = useExecutePayrollXDR();

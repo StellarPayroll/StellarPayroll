@@ -10,16 +10,22 @@ const router = Router();
 
 // GET /api/employees/org/:orgId
 router.get('/org/:orgId', async (req: Request, res: Response) => {
-  const rawPage = req.query.page ?? DEFAULT_PAGE;
-  const rawLimit = req.query.limit ?? DEFAULT_LIMIT;
-  const page = Number(rawPage);
-  const limit = Number(rawLimit);
+  const rawPage = Number(req.query.page ?? DEFAULT_PAGE);
+  const rawLimit = Number(req.query.limit ?? DEFAULT_LIMIT);
+  const page = Number.isInteger(rawPage) && rawPage > 0 ? rawPage : DEFAULT_PAGE;
+  const limit = Number.isInteger(rawLimit) && rawLimit > 0 ? Math.min(rawLimit, MAX_LIMIT) : DEFAULT_LIMIT;
+  const offset = (page - 1) * limit;
 
   const { rows } = await db.query(
-    'SELECT * FROM employees WHERE org_id = $1 ORDER BY created_at DESC',
+    'SELECT * FROM employees WHERE org_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+    [req.params.orgId, limit, offset]
+  );
+  const { rows: [{ count }] } = await db.query(
+    'SELECT COUNT(*) FROM employees WHERE org_id = $1',
     [req.params.orgId]
   );
-  return res.json(rows);
+
+  return res.json({ data: rows, total: Number(count), page, limit });
 });
 
 // POST /api/employees/org/:orgId

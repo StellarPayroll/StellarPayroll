@@ -73,7 +73,8 @@ interface ImportResults {
 export default function Employees() {
   const org = useAppStore((s) => s.currentOrg);
   const orgId = org?.id || '';
-  const { data: employees = [], isLoading } = useEmployees(orgId);
+  const { data: employeesResponse, isLoading } = useEmployees(orgId);
+  const employees = employeesResponse?.data ?? [];
   const createMutation = useCreateEmployee(orgId);
   const deleteMutation = useDeleteEmployee(orgId);
   const importMutation = useImportEmployees(orgId);

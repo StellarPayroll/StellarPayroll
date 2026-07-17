@@ -1,9 +1,16 @@
 import { apiClient } from './client';
 import { Employee } from '../types';
 
+export interface EmployeeListResponse {
+  data: Employee[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 export const employeesApi = {
   list: async (orgId: string) => {
-    const res = await apiClient.get<Employee[]>(`/employees/org/${orgId}`);
+    const res = await apiClient.get<EmployeeListResponse>(`/employees/org/${orgId}`);
     return res.data;
   },
   create: async (orgId: string, data: Partial<Employee>) => {
